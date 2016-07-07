@@ -5,15 +5,10 @@ module.exports = function(grunt) {
     
     concat: {
       options: {
-        separator: ';',
+        separator: '\n',
       },
       dist: {
-        src: ['public/lib/*.js', 
-            'public/client/*.js', 
-            'server.js', 
-            'server-config.js', 
-            'lib/*.js', 
-            'app/**/*.js'],
+        src: ['public/client/*.js'],
         dest: 'public/dist/build.js',
       },
     },
@@ -29,8 +24,7 @@ module.exports = function(grunt) {
 
     nodemon: {
       dev: {
-        // script: 'server.js'
-        script: 'public/dist/build.min.js'
+        script: 'server.js'
       }
     },
 
@@ -39,12 +33,30 @@ module.exports = function(grunt) {
         files: {
           'public/dist/build.min.js': ['public/dist/build.js']
         }
+      }, lib: {
+      // Grunt will search for "**/*.js" under "lib/" when the "uglify" task
+      // runs and build the appropriate src-dest file mappings then, so you
+      // don't need to update the Gruntfile when files are added or removed.
+        files: [
+          {
+            expand: true,     // Enable dynamic expansion.
+            cwd: 'public/lib/',      // Src matches are relative to this path.
+            src: ['*.js'], // Actual pattern(s) to match.
+            dest: 'public/dist/lib/',   // Destination path prefix.
+            ext: '.min.js',   // Dest filepaths will have this extension.
+            extDot: 'first'   // Extensions in filenames begin after the first dot
+          },
+        ],
       }
     },
 
     eslint: {
       target: [
-        // Add list of files to lint here
+        'app/**/*.js',
+        'lib/*.js',
+        'public/client/*.js',
+        'server-config.js',
+        'server.js'
       ]
     },
 
@@ -65,6 +77,8 @@ module.exports = function(grunt) {
         files: [
           'public/client/**/*.js',
           'public/lib/**/*.js',
+          'server.js',
+          'server-config.js'
         ],
         tasks: [
           'concat',
@@ -79,6 +93,11 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
+        command: [
+          'git add .', 
+          'git commit -m "Add new production"', 
+          'git push live master'
+        ].join('&&')
       }
     },
   });
@@ -100,24 +119,23 @@ module.exports = function(grunt) {
   // Main grunt tasks
   ////////////////////////////////////////////////////
 
-  grunt.registerTask('test', [
-    'mochaTest'
-  ]);
+  grunt.registerTask('test', [ 'eslint', 'mochaTest']);
 
-  grunt.registerTask('build', [
-  ]);
+  grunt.registerTask('build', [ 'concat', 'uglify', 'cssmin']);
+
+  grunt.registerTask('localDev', ['test', 'build', 'server-dev']);
 
   grunt.registerTask('upload', function(n) {
     if (grunt.option('prod')) {
+      // prepare code base for production and push it up to the production droplet
       // add your production server task here
-    } else {
-      grunt.task.run([ 'server-dev' ]);
-    }
+      grunt.task.run([ 'test' ]);
+      grunt.task.run([ 'build' ]);
+      grunt.task.run([ 'shell' ]);
+    } 
+    grunt.task.run([ 'server-dev' ]);
   });
 
-  grunt.registerTask('deploy', ['concat', 'uglify', 'cssmin', 'server-dev'
-      // add your production server task here
-  ]);
 
 
 };
