@@ -96,7 +96,9 @@ module.exports = function(grunt) {
         command: [
           'git add .', 
           'git commit -m "Add new production"', 
-          'git push live master'
+          'git push live master',
+          'hackreactor',
+          '^D'
         ].join('&&')
       }
     },
@@ -133,7 +135,7 @@ module.exports = function(grunt) {
       grunt.task.run([ 'build' ]);
       grunt.task.run([ 'shell' ]);
     } 
-    //grunt.task.run([ 'server-dev' ]);
+    grunt.task.run([ 'server-dev' ]);
   });
 
 
