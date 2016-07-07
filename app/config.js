@@ -3,7 +3,8 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var Promise = require('bluebird');
 
-mongoose.connect('mongodb://localhost:27017');
+// environment variable?? 
+mongoose.connect('mongodb://localhost:27017/shortly');
 
 var Schema = mongoose.Schema;
 
