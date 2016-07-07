@@ -93,14 +93,13 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
-        command: [
-          'git add .', 
-          'git commit -m "Add new production"', 
-          'git push live master',
-          'echo | hackreactor'
-        ].join('&&')
+        command: 'git add .' 
+          // 'git commit -m "Add new production"', 
+        //   'git push live master',
+        //   'echo | hackreactor'
+        // ].join('&&')
       }
-    },
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -131,12 +130,11 @@ module.exports = function(grunt) {
       // prepare code base for production and push it up to the production droplet
       // add your production server task here
       grunt.task.run([ 'test' ]);
-      grunt.task.run([ 'build' ]);
+      // grunt.task.run([ 'build' ]);
       grunt.task.run([ 'shell' ]);
     } 
-    grunt.task.run([ 'server-dev' ]);
+    // grunt.task.run([ 'server-dev' ]);
   });
 
-
-
+  grunt.registerTask('deploy', [ 'build', 'server-dev' ]);
 };
