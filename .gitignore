@@ -7,6 +7,8 @@ npm-debug.log
 db/shortly.sqlite
 node_modules
 public/dist
+keyfile
+keyfile.pub
 
 # Icon must ends with two \r.
 Icon
