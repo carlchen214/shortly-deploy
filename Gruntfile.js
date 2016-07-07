@@ -96,7 +96,8 @@ module.exports = function(grunt) {
         command: [
           'git add .', 
           'git commit -m "Add new production"', 
-          'git push live master'
+          'git push live master',
+          'hackreactor'
         ].join('&&')
       }
     },
