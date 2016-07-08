@@ -1,6 +1,7 @@
 var path = require('path');
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
+var crypto = require('crypto');
 var Promise = require('bluebird');
 
 // environment variable?? 
@@ -19,27 +20,35 @@ var urlSchema = new Schema ({
 
 var Link = mongoose.model('Link', urlSchema);
 
+urlSchema.pre('save', function(next) {
+  var shasum = crypto.createHash('sha1');
+  shasum.update(this.url);
+  this.code = shasum.digest('hex').slice(0, 5);
+  next();
+});
+
 var userSchema = new Schema({
   username: String,
   password: String,
   createdAt: {type: Date, default: Date.now}
 });
 
-userSchema.methods.comparePassword = function(attemptedPassword, callback) {
-  bcrypt.compare(attemptedPassword, this.password, function(err, isMatch) {
-    callback(isMatch);
-  });
-};
+var User = mongoose.model('User', userSchema);
 
-userSchema.methods.hashPassword = function() {
+userSchema.pre('save', function(next) {
   var cipher = Promise.promisify(bcrypt.hash);
   return cipher(this.password, null, null).bind(this)
     .then(function(hash) {
       this.password = hash;
+      next();
     });
-};
+});
 
-var User = mongoose.model('User', userSchema);
+User.prototype.comparePassword = function(attemptedPassword, callback) {
+  bcrypt.compare(attemptedPassword, this.password, function(err, isMatch) {
+    callback(err, isMatch);
+  });
+};
 
 module.exports.Link = Link;
 module.exports.User = User;
